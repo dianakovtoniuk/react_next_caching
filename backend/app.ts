@@ -1,8 +1,13 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
+
+interface Message {
+  id: number;
+  text: string;
+}
 
 const app = express();
 
-app.get('/messages', (req, res) => {
+app.get('/messages', (req: Request, res: Response<Message[]>) => {
   const requestSource = req.headers['x-id'];
   console.log(`${new Date().toISOString()}: EXECUTING /messages on backend from ${requestSource}`);
   res.json([

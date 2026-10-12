@@ -1,10 +1,16 @@
-export default async function MessagesLayout({ children }) {
+import type { Message } from '@/lib/messages';
+
+export default async function MessagesLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const response = await fetch('http://localhost:8080/messages', {
     headers: {
       'X-ID': 'layout',
     },
   });
-  const messages = await response.json();
+  const messages: Message[] = await response.json();
   const totalMessages = messages.length;
 
   return (

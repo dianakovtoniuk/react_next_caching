@@ -3,10 +3,10 @@ import { redirect } from 'next/navigation';
 import { addMessage } from '@/lib/messages';
 
 export default function NewMessagePage() {
-  async function createMessage(formData) {
+  async function createMessage(formData: FormData) {
     'use server';
 
-    const message = formData.get('message');
+    const message = formData.get('message') as string;
     addMessage(message);
     redirect('/messages');
   }
@@ -17,7 +17,7 @@ export default function NewMessagePage() {
       <form action={createMessage}>
         <p className="form-control">
           <label htmlFor="message">Your Message</label>
-          <textarea id="message" name="message" required rows="5" />
+          <textarea id="message" name="message" required rows={5} />
         </p>
 
         <p className="form-actions">
