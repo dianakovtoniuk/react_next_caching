@@ -1,35 +1,30 @@
-import { cache } from 'react';
-import { unstable_cache as nextCache } from 'next/cache';
-import sql from 'better-sqlite3';
-
 export interface Message {
   id: number;
   text: string;
 }
 
-const db = new sql('messages.db');
+const BACKEND_URL = process.env.BACKEND_URL ?? 'http://localhost:8080';
 
-function initDb() {
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS messages (
-      id INTEGER PRIMARY KEY, 
-      text TEXT
-    )`);
-}
+export async function getMessages(): Promise<Message[]> {
+  const response = await fetch(`${BACKEND_URL}/messages`, {
+    next: { tags: ['msg'] },
+  });
 
-initDb();
-
-export function addMessage(message: string) {
-  db.prepare('INSERT INTO messages (text) VALUES (?)').run(message);
-}
-
-export const getMessages = nextCache(
-  cache(async function getMessages(): Promise<Message[]> {
-    console.log('Fetching messages from db');
-    return db.prepare('SELECT * FROM messages').all() as Message[];
-  }),
-  ['messages'],
-  {
-    tags: ['msg'],
+  if (!response.ok) {
+    throw new Error(`Failed to fetch messages: ${response.status}`);
   }
-);
+
+  return response.json();
+}
+
+export async function addMessage(message: string) {
+  const response = await fetch(`${BACKEND_URL}/messages`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text: message }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to add message: ${response.status}`);
+  }
+}
